@@ -17,12 +17,15 @@
 package io.delta.sharing.server.model
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import org.codehaus.jackson.annotate.JsonRawValue
 
 case class SingleAction(
     file: AddFile = null,
     metaData: Metadata = null,
-    protocol: Protocol = null) {
+    protocol: Protocol = null,
+    remove: RemoveFile,
+    cdf: AddCDFFile) {
 
   def unwrap: Action = {
     if (file != null) {
@@ -70,3 +73,21 @@ case class AddFile(
 
   override def wrap: SingleAction = SingleAction(file = this)
 }
+
+case class RemoveFile(
+    path: String,
+    @JsonDeserialize(contentAs = classOf[java.lang.Long])
+    deletionTimestamp: Option[Long],
+    dataChange: Boolean = true,
+    extendedFileMetadata: Option[Boolean] = Some(false),
+    partitionValues: Map[String, String] = null,
+    @JsonDeserialize(contentAs = classOf[java.lang.Long])
+    size: Option[Long] = Some(0L),
+    numRecords: Option[Long] = None)
+
+case class AddCDFFile(
+    path: String,
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    partitionValues: Map[String, String],
+    size: Long,
+    tags: Map[String, String] = null)
