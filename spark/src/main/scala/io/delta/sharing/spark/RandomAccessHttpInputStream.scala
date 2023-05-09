@@ -69,6 +69,10 @@ private[sharing] class RandomAccessHttpInputStream(
   private var currentStream: InputStream = null
   private var uri: String = null
 
+  /**
+   * Make sure the current input stream is not closed yet. In addition, reset the input stream to
+   * fetch a new pre-signed url if the current stream may use an expired pre-signed url.
+   */
   private def assertNotClosed(): Unit = {
     if (closed) {
       throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED)
@@ -85,6 +89,8 @@ private[sharing] class RandomAccessHttpInputStream(
     if (this.pos != pos) {
       assertNotClosed()
       reopen(pos)
+    } else {
+      assertNotClosed()
     }
   }
 
